@@ -1,4 +1,5 @@
 %nm125_3: reduce the round-off error using Taylor series
+clc
 f3 = inline("(exp(x)-1)/x","x");
 f4 = inline("((x/4+1)*x/3) + x/2+1","x");
 x = 0; tmp = 1;

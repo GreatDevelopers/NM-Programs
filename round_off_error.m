@@ -1,4 +1,5 @@
 %nm125_2: round-off error test
+clc
 f1 = inline("(1 - cos(x))/x/x","x");
 f2 = inline("sin(x)*sin(x)/x/x/(1 + cos(x))","x");
 for k = 0:1
