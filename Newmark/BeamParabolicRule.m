@@ -5,7 +5,7 @@ Span = 6;
 % LoadIntensity = [0 -5 -10 -15 -20 -25 -30]';
 %LoadIntensity = [0 -5 -10 -15 -20 -25 -30]';
 
-NP = 30 ; % No of panels
+NP = 6 ; % No of panels
 
 LoadInt1 = 0;
 LoadInt2 = -30;
@@ -13,11 +13,15 @@ LoadInt2 = -30;
 LoadIntensity = LoadInt1 : (LoadInt2 - LoadInt1) / NP : LoadInt2 ;
 
 LoadIntensity = LoadIntensity';
-LoadIntensity
+%"jello"
+LoadIntensity %
+
+% Show in a row to save space
 
 NumberOfNodes = rows(LoadIntensity);
 NumberOfPanels = NumberOfNodes - 1 ;
 PanelLenght = Span / NumberOfPanels ;
+xPanelPoints = 0 : PanelLenght : Span ;
 
 EI = ones(NumberOfNodes,1);
 
@@ -49,15 +53,19 @@ LoadEquivalent(1) = LoadEquivalent(1) /24. ;
 
 LoadEquivalent = PanelLenght * LoadEquivalent ;
  
- LoadEquivalent'
+ LoadEquivalent
 
 for i=2 : NumberOfPanels
   TrialPanelShear(i) = TrialPanelShear(i-1) + LoadEquivalent(i);
 end
 
+TrialPanelShear = TrialPanelShear';
+
 for i = 2 : NumberOfNodes
   TrialMoment(i) = TrialMoment(i-1) + TrialPanelShear(i-1) * PanelLenght;
 end
+
+TrialMoment = TrialMoment';
 
 CorrectionAtSupport(1) = MomentAtSupport(1) - TrialMoment(1);
 CorrectionAtSupport(2) = MomentAtSupport(2) - TrialMoment(NumberOfNodes);
@@ -66,11 +74,15 @@ CorrectionInMoment = CorrectionAtSupport(1) : ...
   ( CorrectionAtSupport(2) - CorrectionAtSupport(1) ) / NumberOfPanels ...
   : CorrectionAtSupport(2);
   
+CorrectionInMoment = CorrectionInMoment';
+  
 CorrectedMoment = TrialMoment + CorrectionInMoment ;
 
 for i = 1 : NumberOfPanels
   CorrectedShear(i) = CorrectedMoment(i+1) - CorrectedMoment(i) ;
 end
+
+CorrectedShear = CorrectedShear';
 
 CorrectedShear = CorrectedShear / PanelLenght ;
 
@@ -87,7 +99,7 @@ CorrectedShear
 
 EI
 
-CurvatureIntensity = CorrectedMoment ./ EI';
+CurvatureIntensity = - CorrectedMoment ./ EI;
 
 CurvatureIntensity
 
@@ -109,9 +121,12 @@ for i=2 : NumberOfPanels
   TrialPanelSlope(i) = TrialPanelSlope(i-1) + CurvatureEquivalent(i);
 end
 
+TrialPanelSlope = TrialPanelSlope';
+
 for i = 2 : NumberOfNodes
  TrialDeflection(i) = TrialDeflection(i-1) + TrialPanelSlope(i-1) * PanelLenght;
 end
+TrialDeflection = TrialDeflection';
 
 CorrectionAtSupport(1) = DeflectionAtSupport(1) - TrialDeflection(1);
 CorrectionAtSupport(2) = DeflectionAtSupport(2)-TrialDeflection(NumberOfNodes);
@@ -119,13 +134,15 @@ CorrectionAtSupport(2) = DeflectionAtSupport(2)-TrialDeflection(NumberOfNodes);
 CorrectionInDeflection = CorrectionAtSupport(1) : ...
   ( CorrectionAtSupport(2) - CorrectionAtSupport(1) ) / NumberOfPanels ...
   : CorrectionAtSupport(2);
+
+CorrectionInDeflection = CorrectionInDeflection';
   
 CorrectedDeflection = TrialDeflection + CorrectionInDeflection ;
 
 for i = 1 : NumberOfPanels
   CorrectedSlope(i) = CorrectedDeflection(i+1) - CorrectedDeflection(i) ;
 end
-
+CorrectedSlope = CorrectedSlope';
 CorrectedSlope = CorrectedSlope / PanelLenght ;
 
 TrialPanelSlope
@@ -133,3 +150,9 @@ TrialDeflection
 CorrectionInDeflection
 CorrectedDeflection
 CorrectedSlope
+
+%% Plot 
+
+plotHandle = figure('visible', 'off')
+plot(xPanelPoints, CorrectedMoment,'-bo')
+saveas(plotHandle, 'BendingMoment.png','png')
