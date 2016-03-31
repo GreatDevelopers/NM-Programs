@@ -99,7 +99,7 @@ CorrectedShear
 
 EI
 
-CurvatureIntensity = - CorrectedMoment ./ EI;
+CurvatureIntensity = CorrectedMoment ./ EI;
 
 CurvatureIntensity
 
@@ -153,6 +153,38 @@ CorrectedSlope
 
 %% Plot 
 
-plotHandle = figure('visible', 'off')
+xMidPanel = xPanelPoints(1:NumberOfPanels) + (PanelLenght /2.0);
+
+plot_x(1) = 0;
+plot_y(1) = 0;
+
+for indexI = 1 : NumberOfPanels
+  plot_x = [plot_x (xMidPanel(indexI) - PanelLenght / 2.0 )];
+  plot_y = [ plot_y CorrectedShear(indexI) ];
+  plot_x = [plot_x (xMidPanel(indexI) + PanelLenght / 2.0 )];
+  plot_y = [ plot_y CorrectedShear(indexI) ];
+end
+
+plot_x = [plot_x Span 0];
+plot_y = [ plot_y 0 0];
+
+
+plotHandle1 = figure('visible', 'off')
+ %plot(xPanelPoints(1:NumberOfPanels) + (PanelLenght /2.0), CorrectedShear,'-bo')
+ %plot(plot_x, plot_y,'-b')
+fill(plot_x, plot_y,'r')
+
+%stem(plot_x, plot_y,'-b',"markersize",0)
+
+saveas(plotHandle1, 'ShearForce.png','png')
+
+plotHandle2 = figure('visible', 'off')
 plot(xPanelPoints, CorrectedMoment,'-bo')
-saveas(plotHandle, 'BendingMoment.png','png')
+
+%plot(xPanelPoints, CorrectedMoment,'-b')
+
+saveas(plotHandle2, 'BendingMoment.png','png')
+
+plotHandle4 = figure('visible', 'off')
+plot(xPanelPoints, CorrectedDeflection,'-bo')
+saveas(plotHandle4, 'Deflection.png','png')
